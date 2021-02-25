@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.4.1">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="FieldsRead" enabled="true">
+      <stringProp name="TestPlan.comments"></stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">true</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="databaseNameNoEncrypt" elementType="Argument">
+            <stringProp name="Argument.name">databaseNameNoEncrypt</stringProp>
+            <stringProp name="Argument.value">medicalRecordsNoEncrypt</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="collectionNameNoEncrypt" elementType="Argument">
+            <stringProp name="Argument.name">collectionNameNoEncrypt</stringProp>
+            <stringProp name="Argument.value">patientsF1000</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="connectionNoEncrypt" elementType="Argument">
+            <stringProp name="Argument.name">connectionNoEncrypt</stringProp>
+            <stringProp name="Argument.value">mongodb://10.0.1.216:27017</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="connectionEncrypt" elementType="Argument">
+            <stringProp name="Argument.name">connectionEncrypt</stringProp>
+            <stringProp name="Argument.value">mongodb://10.0.5.140:27017</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="databaseNameEncrypt" elementType="Argument">
+            <stringProp name="Argument.name">databaseNameEncrypt</stringProp>
+            <stringProp name="Argument.value">medicalRecordsEncrypt</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="collectionNameEncrypt" elementType="Argument">
+            <stringProp name="Argument.name">collectionNameEncrypt</stringProp>
+            <stringProp name="Argument.value">patientsF1000</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Encryption" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">10</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Connect to DB Encrypted" enabled="true">
+          <stringProp name="scriptLanguage">java</stringProp>
+          <stringProp name="parameters"></stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="cacheKey">true</stringProp>
+          <stringProp name="script">import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoClient;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.MongoCredentials;
+import com.mongod.ServerAddress;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+
+import org.bson.Document;
+
+import java.util.Arrays;
+
+try {
+	
+	MongoClient mongoClient = MongoClients.create(vars.get(&quot;connectionEncrypt&quot;));
+	MongoDatabase database = mongoClient.getDatabase(vars.get(&quot;databaseNameEncrypt&quot;));
+	MongoCollection collection = database.getCollection(vars.get(&quot;collectionNameEncrypt&quot;));
+
+	vars.putObject(&quot;collectionEncrypted&quot;, collection);
+
+	//return &quot;Connected to &quot; + vars.get(&quot;collectionNameEncrypt&quot;);
+	
+}
+catch (Exception e){
+	SampleResult.setSuccessful(false);
+	SampleResult.setResponseCode(&quot;500&quot;);
+	SampleResult.setResponseMessage(&quot;Exception&quot; + e);
+}</stringProp>
+        </JSR223Sampler>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">true</boolProp>
+          <stringProp name="LoopController.loops">500</stringProp>
+        </LoopController>
+        <hashTree>
+          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Random Variable" enabled="true">
+            <stringProp name="variableName">randomVar</stringProp>
+            <stringProp name="outputFormat"></stringProp>
+            <stringProp name="minimumValue">1</stringProp>
+            <stringProp name="maximumValue">1000000</stringProp>
+            <stringProp name="randomSeed"></stringProp>
+            <boolProp name="perThread">false</boolProp>
+          </RandomVariableConfig>
+          <hashTree/>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Read to Encrypted" enabled="true">
+            <stringProp name="scriptLanguage">java</stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="script">import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import static com.mongodb.client.model.Filters.*;
+
+import com.mongodb.*;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap; 
+import com.example.demo.CSFLEHelpers; 
+
+import org.bson.BsonBinary;
+import org.bson.BsonDocument;
+import org.bson.types.ObjectId;
+import org.bson.BsonString;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+
+import com.mongodb.AutoEncryptionSettings;
+import com.mongodb.ClientEncryptionSettings;
+import com.mongodb.ConnectionString;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.vault.DataKeyOptions;
+import com.mongodb.client.vault.ClientEncryption;
+import com.mongodb.client.vault.ClientEncryptions;
+
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
+
+import com.mongodb.Block;
+import com.mongodb.MongoClientURI;
+import com.mongodb.ServerAddress;
+
+try {
+	MongoCollection collection = vars.getObject(&quot;collectionEncrypted&quot;);
+		
+		String Column4 = (&quot;&apos;&quot;+ (${randomVar}) +&quot;&apos;&quot;).toString();
+
+		//String Column4 = (${randomVar}).toString();
+		Bson ssnQuery = eq(&quot;Column4&quot;, Column4);
+		Document result = collection.find(ssnQuery).first();
+		String finalresult = result.toString();
+    		//log.info(&quot;##################&quot; + finalresult);
+
+	
+	
+}
+catch (Exception e){
+	SampleResult.setSuccessful(false);
+	SampleResult.setResponseCode(&quot;500&quot;);
+	SampleResult.setResponseMessage(&quot;Exception&quot; + e);
+}</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+        </hashTree>
+        <nz.co.breakpoint.jmeter.vizualizers.sshmon.SSHMonCollector guiclass="nz.co.breakpoint.jmeter.vizualizers.sshmon.SSHMonGui" testclass="nz.co.breakpoint.jmeter.vizualizers.sshmon.SSHMonCollector" testname="SSHMonEncrypted" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename">C:\Program Files\Java\apache-jmeter-5.4.1\bin\ReadtoEncrypted.csv</stringProp>
+          <longProp name="interval_grouping">1000</longProp>
+          <boolProp name="graph_aggregated">false</boolProp>
+          <stringProp name="include_sample_labels"></stringProp>
+          <stringProp name="exclude_sample_labels"></stringProp>
+          <stringProp name="start_offset"></stringProp>
+          <stringProp name="end_offset"></stringProp>
+          <boolProp name="include_checkbox_state">false</boolProp>
+          <boolProp name="exclude_checkbox_state">false</boolProp>
+          <collectionProp name="samplers">
+            <collectionProp name="-1135739388">
+              <stringProp name="99850685">ClientCPU</stringProp>
+              <stringProp name="-1204607085">localhost</stringProp>
+              <stringProp name="1600">22</stringProp>
+              <stringProp name="146731693">Administrator</stringProp>
+              <stringProp name="0"></stringProp>
+              <stringProp name="817721344">PGuLG8Dm5-DNZT%!N%P!hkEHtaUXq;?7</stringProp>
+              <stringProp name="-867838968">powershell.exe -File &quot;C:\Program Files\Java\cpu.ps1&quot;</stringProp>
+              <stringProp name="1237">false</stringProp>
+            </collectionProp>
+            <collectionProp name="-226280748">
+              <stringProp name="99859946">ClientMEM</stringProp>
+              <stringProp reference="../../collectionProp/stringProp[2]"/>
+              <stringProp reference="../../collectionProp/stringProp[3]"/>
+              <stringProp reference="../../collectionProp/stringProp[4]"/>
+              <stringProp reference="../../collectionProp/stringProp[5]"/>
+              <stringProp reference="../../collectionProp/stringProp[6]"/>
+              <stringProp name="-2021243909">powershell.exe -File &quot;C:\Program Files\Java\mem.ps1&quot;</stringProp>
+              <stringProp name="1237">false</stringProp>
+            </collectionProp>
+            <collectionProp name="-2049557338">
+              <stringProp name="64832586">DBCPU</stringProp>
+              <stringProp name="1979979047">10.0.5.140</stringProp>
+              <stringProp name="1600">22</stringProp>
+              <stringProp name="-924648796">ec2-user</stringProp>
+              <stringProp name="814532657">${__FileToString(C:\Users\Administrator\.ssh\okey.pem)}</stringProp>
+              <stringProp name="0"></stringProp>
+              <stringProp name="-636398108">sar -u 2 1 | awk &apos;/^Average:/{print 100-$8}&apos;</stringProp>
+              <stringProp name="1237">false</stringProp>
+            </collectionProp>
+            <collectionProp name="1358258634">
+              <stringProp name="64841847">DBMEM</stringProp>
+              <stringProp reference="../../collectionProp[3]/stringProp[2]"/>
+              <stringProp reference="../../collectionProp[3]/stringProp[3]"/>
+              <stringProp reference="../../collectionProp[3]/stringProp[4]"/>
+              <stringProp name="814532657">${__FileToString(C:\Users\Administrator\.ssh\okey.pem)}</stringProp>
+              <stringProp reference="../../collectionProp[3]/stringProp[6]"/>
+              <stringProp name="221354278">sar -r 2 1 | awk &apos;/^Average:/{print (($3-$5-$6)/($2+$3)) * 100}&apos;</stringProp>
+              <stringProp name="1237">false</stringProp>
+            </collectionProp>
+          </collectionProp>
+        </nz.co.breakpoint.jmeter.vizualizers.sshmon.SSHMonCollector>
+        <hashTree/>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="NoEncryption" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">10</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Connect to DB" enabled="true">
+          <stringProp name="scriptLanguage">java</stringProp>
+          <stringProp name="parameters"></stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="cacheKey">false</stringProp>
+          <stringProp name="script">import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoClient;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.MongoCredentials;
+import com.mongod.ServerAddress;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+
+import org.bson.Document;
+
+import java.util.Arrays;
+
+try {
+	
+	MongoClient mongoClient = MongoClients.create(vars.get(&quot;connectionNoEncrypt&quot;));
+	MongoDatabase database = mongoClient.getDatabase(vars.get(&quot;databaseNameNoEncrypt&quot;));
+	MongoCollection collection1 = database.getCollection(vars.get(&quot;collectionNameNoEncrypt&quot;));
+
+	vars.putObject(&quot;collectionNoEncrypted&quot;, collection1);
+
+	//return &quot;Connected to &quot; + vars.get(&quot;collectionNameNoEncryp&quot;);
+	
+}
+catch (Exception e){
+	SampleResult.setSuccessful(false);
+	SampleResult.setResponseCode(&quot;500&quot;);
+	SampleResult.setResponseMessage(&quot;Exception&quot; + e);
+}</stringProp>
+        </JSR223Sampler>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">true</boolProp>
+          <stringProp name="LoopController.loops">500</stringProp>
+        </LoopController>
+        <hashTree>
+          <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Random Variable" enabled="true">
+            <stringProp name="variableName">randomVar2</stringProp>
+            <stringProp name="outputFormat"></stringProp>
+            <stringProp name="minimumValue">1</stringProp>
+            <stringProp name="maximumValue">1000000</stringProp>
+            <stringProp name="randomSeed"></stringProp>
+            <boolProp name="perThread">false</boolProp>
+          </RandomVariableConfig>
+          <hashTree/>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Read" enabled="true">
+            <stringProp name="scriptLanguage">java</stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="cacheKey">false</stringProp>
+            <stringProp name="script">import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import static com.mongodb.client.model.Filters.*;
+
+import com.mongodb.*;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap; 
+import com.example.demo.CSFLEHelpers; 
+
+import org.bson.BsonBinary;
+import org.bson.BsonDocument;
+import org.bson.types.ObjectId;
+import org.bson.BsonString;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+
+import com.mongodb.AutoEncryptionSettings;
+import com.mongodb.ClientEncryptionSettings;
+import com.mongodb.ConnectionString;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.vault.DataKeyOptions;
+import com.mongodb.client.vault.ClientEncryption;
+import com.mongodb.client.vault.ClientEncryptions;
+
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
+
+import com.mongodb.Block;
+import com.mongodb.MongoClientURI;
+import com.mongodb.ServerAddress;
+
+try {
+	MongoCollection collection1 = vars.getObject(&quot;collectionNoEncrypted&quot;);
+	
+			
+		String Column4 = (&quot;&apos;&quot;+ (${randomVar2}) +&quot;&apos;&quot;).toString();
+		//String Column4 = (${randomVar}).toString();
+		Bson ssnQuery = eq(&quot;Column4&quot;, Column4);
+		Document result = collection1.find(ssnQuery).first();
+		String finalresult = result.toString();
+		
+			//log.info(&quot;##################&quot; + finalresult);
+
+	
+}
+catch (Exception e){
+	SampleResult.setSuccessful(false);
+	SampleResult.setResponseCode(&quot;500&quot;);
+	SampleResult.setResponseMessage(&quot;Exception&quot; + e);
+}</stringProp>
+          </JSR223Sampler>
+          <hashTree>
+            <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
+              <boolProp name="ResultCollector.error_logging">false</boolProp>
+              <objProp>
+                <name>saveConfig</name>
+                <value class="SampleSaveConfiguration">
+                  <time>true</time>
+                  <latency>true</latency>
+                  <timestamp>true</timestamp>
+                  <success>true</success>
+                  <label>true</label>
+                  <code>true</code>
+                  <message>true</message>
+                  <threadName>true</threadName>
+                  <dataType>true</dataType>
+                  <encoding>false</encoding>
+                  <assertions>true</assertions>
+                  <subresults>true</subresults>
+                  <responseData>false</responseData>
+                  <samplerData>false</samplerData>
+                  <xml>false</xml>
+                  <fieldNames>true</fieldNames>
+                  <responseHeaders>false</responseHeaders>
+                  <requestHeaders>false</requestHeaders>
+                  <responseDataOnError>false</responseDataOnError>
+                  <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+                  <assertionsResultsToSave>0</assertionsResultsToSave>
+                  <bytes>true</bytes>
+                  <sentBytes>true</sentBytes>
+                  <url>true</url>
+                  <threadCounts>true</threadCounts>
+                  <idleTime>true</idleTime>
+                  <connectTime>true</connectTime>
+                </value>
+              </objProp>
+              <stringProp name="filename"></stringProp>
+            </ResultCollector>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <nz.co.breakpoint.jmeter.vizualizers.sshmon.SSHMonCollector guiclass="nz.co.breakpoint.jmeter.vizualizers.sshmon.SSHMonGui" testclass="nz.co.breakpoint.jmeter.vizualizers.sshmon.SSHMonCollector" testname="SSHMon" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename">C:\Program Files\Java\apache-jmeter-5.4.1\bin\Read.csv</stringProp>
+          <longProp name="interval_grouping">1000</longProp>
+          <boolProp name="graph_aggregated">false</boolProp>
+          <stringProp name="include_sample_labels"></stringProp>
+          <stringProp name="exclude_sample_labels"></stringProp>
+          <stringProp name="start_offset"></stringProp>
+          <stringProp name="end_offset"></stringProp>
+          <boolProp name="include_checkbox_state">false</boolProp>
+          <boolProp name="exclude_checkbox_state">false</boolProp>
+          <collectionProp name="samplers">
+            <collectionProp name="-1135739388">
+              <stringProp name="99850685">ClientCPU</stringProp>
+              <stringProp name="-1204607085">localhost</stringProp>
+              <stringProp name="1600">22</stringProp>
+              <stringProp name="146731693">Administrator</stringProp>
+              <stringProp name="0"></stringProp>
+              <stringProp name="817721344">PGuLG8Dm5-DNZT%!N%P!hkEHtaUXq;?7</stringProp>
+              <stringProp name="-867838968">powershell.exe -File &quot;C:\Program Files\Java\cpu.ps1&quot;</stringProp>
+              <stringProp name="1237">false</stringProp>
+            </collectionProp>
+            <collectionProp name="-226280748">
+              <stringProp name="99859946">ClientMEM</stringProp>
+              <stringProp name="-1204607085">localhost</stringProp>
+              <stringProp name="1600">22</stringProp>
+              <stringProp name="146731693">Administrator</stringProp>
+              <stringProp name="0"></stringProp>
+              <stringProp name="817721344">PGuLG8Dm5-DNZT%!N%P!hkEHtaUXq;?7</stringProp>
+              <stringProp name="-2021243909">powershell.exe -File &quot;C:\Program Files\Java\mem.ps1&quot;</stringProp>
+              <stringProp name="1237">false</stringProp>
+            </collectionProp>
+            <collectionProp name="-1509822773">
+              <stringProp name="64832586">DBCPU</stringProp>
+              <stringProp name="1976285837">10.0.1.216</stringProp>
+              <stringProp name="1600">22</stringProp>
+              <stringProp name="-924648796">ec2-user</stringProp>
+              <stringProp name="-2117293272">${__FileToString(C:\Users\Administrator\.ssh\ekslab-linux.pem)}</stringProp>
+              <stringProp name="0"></stringProp>
+              <stringProp name="-636398108">sar -u 2 1 | awk &apos;/^Average:/{print 100-$8}&apos;</stringProp>
+              <stringProp name="1237">false</stringProp>
+            </collectionProp>
+            <collectionProp name="1897993199">
+              <stringProp name="64841847">DBMEM</stringProp>
+              <stringProp name="1976285837">10.0.1.216</stringProp>
+              <stringProp name="1600">22</stringProp>
+              <stringProp name="-924648796">ec2-user</stringProp>
+              <stringProp name="-2117293272">${__FileToString(C:\Users\Administrator\.ssh\ekslab-linux.pem)}</stringProp>
+              <stringProp name="0"></stringProp>
+              <stringProp name="221354278">sar -r 2 1 | awk &apos;/^Average:/{print (($3-$5-$6)/($2+$3)) * 100}&apos;</stringProp>
+              <stringProp name="1237">false</stringProp>
+            </collectionProp>
+          </collectionProp>
+        </nz.co.breakpoint.jmeter.vizualizers.sshmon.SSHMonCollector>
+        <hashTree/>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <url>true</url>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <stringProp name="filename"></stringProp>
+      </ResultCollector>
+      <hashTree/>
+      <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="View Results in Table" enabled="true">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <url>true</url>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <stringProp name="filename"></stringProp>
+      </ResultCollector>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>
